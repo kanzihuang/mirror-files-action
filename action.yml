@@ -1,13 +1,16 @@
-name: 'Hello World'
-description: 'Greet someone and record the time'
-inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
-outputs:
-  time: # id of output
-    description: 'The time we greeted you'
+name: 'Mirror files to branches'
+description: 'Mirror files to branches'
+
 runs:
-  using: 'node16'
-  main: 'index.js'
+  using: composite
+  steps:
+    - name: Download the release, commit and push it to the branch
+      run: |
+        echo ${{ github.token }} | gh auth login --with-token
+        ./mirror.sh
+      shell: bash
+
+    - name: Switch to the branch named main
+      if: always()
+      run: git switch --discard-changes main
+      shell: bash
