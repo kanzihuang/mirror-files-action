@@ -7,10 +7,14 @@ runs:
     - name: Download the release, commit and push it to the branch
       run: |
         echo ${{ github.token }} | gh auth login --with-token
+        git config user.name github-actions
+        git config user.email github-actions@github.com        
         ./mirror.sh
       shell: bash
 
-    - name: Switch to the branch named main
+    - name: Clean
       if: always()
-      run: git switch --discard-changes main
+      run: |
+        git switch --discard-changes main
+        gh auth logout --hostname github.com
       shell: bash
