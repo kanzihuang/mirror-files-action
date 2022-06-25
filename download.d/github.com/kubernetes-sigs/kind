@@ -1,0 +1,33 @@
+
+declare version=0.14.0
+declare -a oses=(linux windows)
+declare -a arches=(amd64)
+
+function download() {
+  oses=$1
+  arches=$2
+  version=$3
+
+  curl -fsSLO https://kind.sigs.k8s.io/dl/v$version/kind-$oses-$arches
+  curl -fsSLO https://kind.sigs.k8s.io/dl/v$version/kind-$oses-$arches.sha256sum
+}
+
+mkdir -p releases && cd releases
+for os in ${oses[@]}; do
+  for arch in ${arches[@]}; do
+    download $os $arch $version
+  done
+done
+cd ..
+
+cat > install.sh <<EOF
+if $# != 2; then
+  echo "Usage: $(basename $0) <os> <arch>"
+  exit 1
+fi
+path=$(dirname $0)
+sudo cp $path/kind-$os-$arch /usr/local/bin/kind
+chmod +x /usr/local/bin/kind
+EOF
+
+chmod 700 install.sh

@@ -2,9 +2,8 @@
 
 set -euo pipefail
 
-for path in $(find download.d/ -name download.sh); do
-	branch=$(dirname $path)
-	branch=${branch#*/}
+for path in $(find download.d/ -type f); do
+	branch=${path#*/}
 	if [[ -n "$(git ls-remote origin refs/heads/$branch)" ]]; then
 		echo "A branch name '$branch' already exists."
 		continue
