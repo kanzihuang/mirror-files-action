@@ -2,61 +2,43 @@
 
 set -euo pipefail
 
-if [[ $# != 5 ]]; then
-	echo "Usage: $(basename $0) <repo> <app> <version> <oses> <arches>"
-	exit 1
-fi
-
-declare repo=$1
-declare app=$2
-declare version=$3
-declare -a oses=($4)
-declare -a arches=($5)
-
 function download() {
-  os=$1
-  arch=$2
-  version=$3
-	dot_exe=""
-	[[ $os == windows ]] && dot_exe=".exe"
+  declare repo=$1
+  declare version=$2
+  declare filename=$3
 
-  curl -fsSLO https://github.com/$repo/releases/download/v$version/$app-$os-$arch$dot_exe
-	chmod +x $app-$os-$arch$dot_exe
+  mkdir -p releases && cd releases
+  curl -fsSLO "https://github.com/$repo/releases/download/v$version/$filename"
+  chmod +x "$filename"
+	cd ..
 }
 
 function generate-script() {
-	declare app=$0
+	declare filename=$1
+	declare appname=$2
+	declare script=install-$appname.sh
 
-	cat > install.sh <<EOF
+  cat > $script <<EOF
 #!/bin/bash
-set -euo pipefail
-if [[ \$# != 2 ]]; then
-  echo "Usage: \$(basename \$0) <os> <arch>"
-  exit 1
-fi
-if [[ \$os == windows ]]; then
-	echo "Unsupported windows OS"
-	exit 1
-fi
-path=\$(dirname \$0)
-os=\$1
-arch=\$2
-sudo install \$path/releases/$app-\$os-\$arch /usr/local/bin/$app
+sudo install \$(dirname \$0)/releases/$filename /usr/local/bin/$appname
 EOF
 
-	chmod 700 install.sh
+  chmod 700 $script
 }
 
 function main() {
-	mkdir -p releases && cd releases
-	for os in ${oses[@]}; do
-		for arch in ${arches[@]}; do
-			download $os $arch $version
-		done
-	done
-	cd ..
+	declare repo=$1
+	declare version=$2
+	declare filename=$3
+	declare appname=$4
 
-	generate-script $app
+	download $repo $version $filename
+	generate-script $filename $appname
 }
 
-main
+if [[ $# != 4 ]]; then
+	echo "Usage: $(basename $0) <repo> <version> <filename> <appname>"
+	exit 1
+fi
+
+main "${@}"

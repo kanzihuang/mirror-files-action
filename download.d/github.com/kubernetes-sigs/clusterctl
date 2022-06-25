@@ -1,7 +1,5 @@
 declare repo=kubernetes-sigs/cluster-api
-declare app=clusterctl
 declare version=1.1.4
-declare -a oses=(linux windows)
-declare -a arches=(amd64)
-
-bash -x $(git rev-parse --show-toplevel)/scripts/github-app-download.sh $repo $app $version "${oses[*]}" "${arches[*]}"
+declare filename=clusterctl-linux-amd64
+declare appname=clusterctl
+bash -x $(git rev-parse --show-toplevel)/scripts/github-app-download.sh $repo $version $filename $appname

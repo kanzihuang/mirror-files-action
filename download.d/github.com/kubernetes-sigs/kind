@@ -1,7 +1,6 @@
 declare repo=kubernetes-sigs/kind
-declare app=kind
 declare version=0.14.0
-declare -a oses=(linux windows)
-declare -a arches=(amd64)
+declare filename=kind-linux-amd64
+declare appname=kind
 
-bash -x $(git rev-parse --show-toplevel)/scripts/github-app-download.sh $repo $app $version "${oses[*]}" "${arches[*]}"
+bash -x $(git rev-parse --show-toplevel)/scripts/github-app-download.sh $repo $version $filename $appname
