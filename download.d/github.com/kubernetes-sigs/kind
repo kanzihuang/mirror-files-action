@@ -10,6 +10,8 @@ function download() {
 
   curl -fsSLO https://kind.sigs.k8s.io/dl/v$version/kind-$oses-$arches
   curl -fsSLO https://kind.sigs.k8s.io/dl/v$version/kind-$oses-$arches.sha256sum
+
+	chmod +x kind-$oses-$arches
 }
 
 mkdir -p releases && cd releases
@@ -21,13 +23,16 @@ done
 cd ..
 
 cat > install.sh <<EOF
-if $# != 2; then
-  echo "Usage: $(basename $0) <os> <arch>"
+#!/bin/bash
+set -euo pipefail
+if [[ \$# != 2 ]]; then
+  echo "Usage: \$(basename \$0) <os> <arch>"
   exit 1
 fi
-path=$(dirname $0)
-sudo cp $path/kind-$os-$arch /usr/local/bin/kind
-chmod +x /usr/local/bin/kind
+path=\$(dirname \$0)
+os=\$1
+arch=\$2
+sudo install \$path/releases/kind-\$os-\$arch /usr/local/bin/kind
 EOF
 
 chmod 700 install.sh
